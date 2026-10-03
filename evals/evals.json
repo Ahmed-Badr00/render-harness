@@ -1,0 +1,42 @@
+{
+ "skill_name": "render-harness",
+ "_doc": "Test prompts for iterating on this skill with skill-creator. Replace <APP_REPO> with a real checkout on your machine. Each assertion is checked after the run (see README, Testing the skill).",
+ "evals": [
+  {
+   "id": 1,
+   "name": "rn-screen-matrix",
+   "prompt": "I want to see how the Wishlist (or any list) screen in our React Native app looks on small and big iPhones, a Pixel, and the iPhone Duo cover and open screens, in English and Arabic. The repo is at <APP_REPO>. Use realistic data, not lorem ipsum. Give me contact sheets and a short list of anything that looks broken.",
+   "expected_output": "A react-native-web harness built from the skill templates in a clean workspace, the real screen rendered with realistic data on iphone-se, iphone-17-pro-max, pixel-9, duo-cover, duo-open-l (EN + AR), contact sheets, and a short verified findings list with code refs.",
+   "files": [],
+   "assertions": [
+    "app checkout untouched (same HEAD, clean git status)",
+    "harness built from the skill templates",
+    "small iPhone, big iPhone, Pixel, Duo cover and Duo open shots exist",
+    "Arabic shots exist",
+    "most renders have no page errors and no api misses",
+    "contact sheets delivered",
+    "findings cite code file:line and screenshots",
+    "hand-built data is labelled",
+    "no em or en dashes in deliverables"
+   ]
+  },
+  {
+   "id": 2,
+   "name": "web-app-mobile-check",
+   "prompt": "Our internal web app (<APP_REPO>, a Next.js monorepo) needs a mobile check before a new foldable launches. Render its main pages on iPhone SE, iPhone 15, a Galaxy S24, Galaxy Fold and the iPhone Duo cover and open screens, plus a 1920 desktop, and Arabic if the app supports it. Mock whatever API it calls. Send me contact sheets and a report.",
+   "expected_output": "The web app running from a clean copy, its main pages rendered with mocked API data (mock server if data is fetched server-side) on the requested profiles, contact sheets, and report.html + issues.csv with verified findings, including unreachable controls and horizontal overflow flagged by the harness.",
+   "files": [],
+   "assertions": [
+    "app checkout untouched (same HEAD, clean git status)",
+    "app run from a clean copy",
+    "iPhone SE, iPhone 15, Galaxy S24, Galaxy Fold, Duo cover and open, and desktop shots exist",
+    "Arabic rendered or its absence explained",
+    "most renders have no page errors and no api misses",
+    "contact sheets delivered",
+    "report.html and issues.csv delivered",
+    "data source labelled",
+    "no em or en dashes in deliverables"
+   ]
+  }
+ ]
+}
