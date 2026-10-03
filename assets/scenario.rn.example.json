@@ -1,0 +1,19 @@
+{
+  "note": "Order details, out for delivery. RN harness scenario: screen + props instead of url.",
+  "screen": "OrderDetails",
+  "props": { "orderId": "ORDER-123" },
+  "stack": null,
+  "redux": { "user": { "firstName": "Test" } },
+  "featureFlags": ["new_tracking"],
+  "asyncStorage": { "@app/locale": "en" },
+  "locale": { "country": "AE", "currency": "AED", "timeZone": "Asia/Dubai" },
+  "routes": [
+    { "method": "GET", "pathRegex": "^/api/orders/ORDER-123$", "file": "data/order-ofd.json" },
+    { "method": "GET", "pathRegex": "^/api/orders/ORDER-123/timeline$", "file": "data/timeline-ofd.json" }
+  ],
+  "settleMs": 2500,
+  "steps": [
+    { "click": "Reschedule", "wait": 1200, "shot": "reschedule-sheet" },
+    { "click": "Tue", "wait": 400, "shot": "date-picked", "pages": false }
+  ]
+}
