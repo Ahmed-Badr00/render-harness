@@ -1,0 +1,80 @@
+{
+ "title": "Demo audit",
+ "subtitle": "Smoke test of the render-harness report.",
+ "issues": [
+  {
+   "id": "D-1",
+   "severity": "High",
+   "title": "Header actions sit under the system status area",
+   "why": "The header ignores the right safe-area inset.",
+   "fix": "Pad the header by the right inset.",
+   "code": "index.html:3",
+   "instances": [
+    {
+     "flow": "Orders",
+     "page": "Orders list",
+     "element": "More button",
+     "devices": "duo-cover (standalone)",
+     "lang": "EN",
+     "severity": "High",
+     "effect": "Customers cannot open the menu on the cover.",
+     "evidence": [
+      "findings/evidence/D-1.png",
+      "https://drive.google.com/file/d/EXAMPLE/view"
+     ],
+     "ref": "demo"
+    }
+   ]
+  },
+  {
+   "id": "D-2",
+   "severity": "Low",
+   "title": "Cancel buttons stay white in dark mode",
+   "why": "Button styles have no dark variant.",
+   "fix": "Add dark colors.",
+   "code": "index.html:4",
+   "instances": [
+    {
+     "flow": "Orders",
+     "page": "Orders list",
+     "element": "Cancel order",
+     "devices": "all",
+     "lang": "EN",
+     "effect": "Glaring white buttons.",
+     "evidence": []
+    }
+   ]
+  }
+ ],
+ "not_specific": [
+  {
+   "id": "X1",
+   "severity": "Medium",
+   "title": "Cancel error copy",
+   "flow": "Orders",
+   "effect": "Shows a raw backend message.",
+   "fix": "Map errors to copy.",
+   "evidence": []
+  }
+ ],
+ "not_tested": [
+  "Real devices"
+ ],
+ "method": [
+  "Rendered with render-harness on 2 devices."
+ ],
+ "coverage": [
+  {
+   "area": "Orders list",
+   "element": "Filter sheet",
+   "how": "Renders",
+   "result": "D-1"
+  },
+  {
+   "area": "Orders list",
+   "element": "Live chat bar",
+   "how": "Not tested",
+   "result": "Needs an open chat"
+  }
+ ]
+}

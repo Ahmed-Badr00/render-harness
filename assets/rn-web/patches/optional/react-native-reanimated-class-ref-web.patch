@@ -1,0 +1,16 @@
+--- a/node_modules/react-native-reanimated/lib/module/css/component/AnimatedComponent.js	2026-10-03 04:38:56
++++ b/node_modules/react-native-reanimated/lib/module/css/component/AnimatedComponent.js	2026-10-03 04:38:56
+@@ -75,6 +75,13 @@
+     if (componentRef && componentRef.getAnimatableRef) {
+       return componentRef.getAnimatableRef();
+     }
++    // harness: on device findNodeHandle resolves a class component (e.g. an animated Text built on a class component) to its host
++    // view; on web the ref stays the class instance and animated styles never reach the DOM. Resolve the host element.
++    if (componentRef && componentRef._reactInternals && typeof HTMLElement !== 'undefined' && !(componentRef instanceof HTMLElement)) {
++      let fiber = componentRef._reactInternals.child;
++      while (fiber && !(fiber.stateNode instanceof HTMLElement)) fiber = fiber.child;
++      if (fiber) { this._componentDOMRef = fiber.stateNode; return fiber.stateNode; }
++    }
+     // Case for SVG components on Web
+     if (componentRef && componentRef.elementRef) {
+       this._componentDOMRef = componentRef.elementRef.current;

@@ -1,6 +1,6 @@
 ---
 name: render-harness
-description: Render any app's REAL frontend code, whatever the stack (web apps such as Next.js, React, Vue, Nuxt, Angular, Svelte, Ionic; React Native; Flutter; native iOS SwiftUI/UIKit; native Android Compose/Views), feed it real backend JSON, and screenshot every UI state on many device profiles at once (iPhone SE to Pro Max, Android small to Pixel, tablets, foldables like iPhone Duo and Galaxy Fold including fold/unfold and Split View, Arabic/RTL, dark mode), then turn the shots into contact sheets, verified findings and an HTML/CSV report. Use it whenever the user wants to see, test, audit or compare screens across phones or devices, check how a backend or copy change looks in the app, catch edge-case layouts (long text, small screens, RTL), prepare for a new device, or "render the app without a simulator", even if they never say "harness".
+description: Render any app's REAL frontend code, whatever the stack (web apps such as Next.js, React, Vue, Nuxt, Angular, Svelte, Ionic; React Native; Flutter; native iOS SwiftUI/UIKit; native Android Compose/Views), feed it real backend JSON, and screenshot every UI state on many device profiles at once (iPhone SE to 17 Pro Max and Air, Samsung Galaxy S24/S25 and A-series, Pixel, tablets, foldables like iPhone Duo and Galaxy Fold including fold/unfold and Split View, desktop and MacBook sizes, Arabic/RTL, dark mode), then turn the shots into contact sheets, verified findings and an HTML/CSV report. Use it whenever the user wants to see, test, audit or compare screens across phones or devices, check how a backend or copy change looks in the app, catch edge-case layouts (long text, small screens, RTL), prepare for a new device, or "render the app without a simulator", even if they never say "harness".
 ---
 
 # Render harness
@@ -118,9 +118,14 @@ resolved routes from `node runner/use_scenario.mjs <scenario> --print` (or load 
 on a simulator or emulator). Keep this layout and everything downstream works unchanged.
 
 ## Devices
-`scripts/devices.json` holds measured profiles (CSS points, scale, platform, safe-area insets, system UI, crease, dead-tap
-zones) and sets: `phones`, `ios`, `android`, `foldables`, `duo`, `tablets`, `all`. Pass ids or sets:
-`--devices=iphone-se,pixel-7,duo` . Web mode uses each device's visible browser height (`web.h`) and draws no system UI;
+`scripts/devices.json` holds profiles (CSS points, scale, platform, safe-area insets, system UI, crease, dead-tap zones,
+`approx` for what was not measured, `source`) for iPhones from SE to 17 Pro Max and Air, Galaxy S24/S25 and their
+Plus/Ultra, A-series, Pixel 7/9, Galaxy Fold, iPhone Duo (every posture and Split View), iPad mini, and desktop
+(Windows 1366 to 2560 wide, MacBooks). Model names that share a screen are `aliases` (`iphone-16` renders as
+`iphone-15`, `galaxy-s25-ultra` as `galaxy-s24-ultra`). Sets: `phones` (default matrix: SE, 15, 17 Pro Max, S24, S24
+Ultra, Pixel 9), `ios`, `android`, `samsung`, `foldables`, `duo`, `tablets`, `desktop`, `mac`, `mobile`, `all`. Pass ids
+or sets: `--devices=phones,duo,desktop-1920`. Desktop profiles browse as desktop Chrome with a mouse (no touch, desktop
+user agent); use them for web apps. Web mode uses each device's visible browser height (`web.h`) and draws no system UI;
 rn mode and `--standalone` use the full screen with the status bar, home indicator, Duo capsule or cluster drawn on top.
 `--guides` draws safe areas, the crease and dead-tap zones for review. Add a device by measuring it on a simulator or
 emulator (screen size in points, insets, where system UI sits); never guess numbers.

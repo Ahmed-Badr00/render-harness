@@ -40,7 +40,8 @@ def main():
     method = list(d.get('method', []))
     try:
         known = json.load(open(os.path.join(HERE, 'devices.json')))['devices']
-        approx = [f"{known[x].get('label', x)} ({'browser height' if known[x]['approx'] == 'web.h' else 'whole profile'})" for x in d.get('devices', []) if x in known and known[x].get('approx')]
+        words = {'web.h': 'browser height', 'insets': 'safe areas and system bars', 'all': 'whole profile'}
+        approx = [f"{known[x].get('label', x)} ({', '.join(words.get(t, t) for t in known[x]['approx'].split(','))})" for x in d.get('devices', []) if x in known and known[x].get('approx')]
         if approx:
             method.append('Approximate profiles (sizes not from a published spec, confirm on a device): ' + ', '.join(approx) + '.')
     except (OSError, KeyError, ValueError):

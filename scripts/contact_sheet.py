@@ -98,7 +98,8 @@ def main():
     a = ap.parse_args()
 
     dev = json.load(open(os.path.join(HERE, 'devices.json')))
-    ids = [x for d in a.devices.split(',') if d for x in dev['sets'].get(d, [d])]
+    al = dev.get('aliases', {})
+    ids = list(dict.fromkeys(al.get(x, x) for d in a.devices.split(',') if d for x in dev['sets'].get(d, [d])))
     cols = [(b.split(':', 1)[0], b.split(':', 1)[1] if ':' in b else os.path.basename(b.rstrip('/'))) for b in a.baseline]
     cols += [(os.path.join(a.shots, d), dev['devices'].get(d, {}).get('label', d)) for d in ids]
 

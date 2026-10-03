@@ -1,0 +1,23 @@
+{
+  "note": "Orders page, 2 orders, cancel fails with 400. Data: dumped from the backend test suite (see findings header).",
+  "url": "/account/orders",
+  "storage": {
+    "localStorage": { "auth_token": "fake-test-token" },
+    "cookies": [ { "name": "session", "value": "fake-session" } ]
+  },
+  "includeRoutes": ["orders/shared-routes"],
+  "routes": [
+    { "method": "GET", "host": "api.example.com", "path": "/v1/orders", "queryRegex": "page=1", "file": "data/orders-two.json" },
+    { "method": "GET", "pathRegex": "^/v1/orders/[^/]+$", "file": "data/order-detail.json" },
+    { "method": "POST", "pathRegex": "^/v1/orders/[^/]+/cancel$", "status": 400, "data": { "error": "ORDER_ALREADY_SHIPPED", "message": "This order has already shipped" } },
+    { "method": "GET", "path": "/v1/recommendations", "networkError": true },
+    { "method": "GET", "path": "/v1/orders/summary", "delayMs": 4000, "data": { "count": 2 } }
+  ],
+  "readyWhen": { "text": "Your orders" },
+  "settleMs": 800,
+  "steps": [
+    { "click": "Cancel order", "wait": 800, "shot": "cancel-error" },
+    { "device": "duo-open-l", "wait": 600, "shot": "after-unfold", "pages": false }
+  ],
+  "devices": ["phones"]
+}

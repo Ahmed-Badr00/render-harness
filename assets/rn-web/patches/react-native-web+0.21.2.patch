@@ -1,0 +1,80 @@
+diff -ru a/node_modules/react-native-web/dist/exports/StyleSheet/compiler/createReactDOMStyle.js b/node_modules/react-native-web/dist/exports/StyleSheet/compiler/createReactDOMStyle.js
+--- a/node_modules/react-native-web/dist/exports/StyleSheet/compiler/createReactDOMStyle.js	2026-10-02 14:28:49
++++ b/node_modules/react-native-web/dist/exports/StyleSheet/compiler/createReactDOMStyle.js	2026-10-02 14:28:50
+@@ -101,6 +101,10 @@
+         resolvedStyle.flexGrow = 0;
+         resolvedStyle.flexShrink = 1;
+         resolvedStyle.flexBasis = 'auto';
++      } else if (value === 0) { /* harness: Yoga flex 0 = inflexible, sized by content */
++        resolvedStyle.flexGrow = 0;
++        resolvedStyle.flexShrink = 0;
++        resolvedStyle.flexBasis = 'auto';
+       } else {
+         resolvedStyle.flex = value;
+       }
+diff -ru a/node_modules/react-native-web/dist/exports/StyleSheet/compiler/index.js b/node_modules/react-native-web/dist/exports/StyleSheet/compiler/index.js
+--- a/node_modules/react-native-web/dist/exports/StyleSheet/compiler/index.js	2026-10-02 14:28:49
++++ b/node_modules/react-native-web/dist/exports/StyleSheet/compiler/index.js	2026-10-02 14:28:50
+@@ -155,14 +155,14 @@
+       if (PROPERTIES_VALUE.indexOf(srcProp) > -1) {
+         var _left = atomicCompile(srcProp, srcProp, 'left');
+         var _right = atomicCompile(srcProp, srcProp, 'right');
+-        if (value === 'start') {
++        if (value === 'start' || (typeof window !== "undefined" && window.__HARNESS_LANG__ === "ar" && srcProp === 'textAlign' && value === 'left')) { /* harness: iOS flips textAlign left/right in RTL */
+           localizeableValue = [_left, _right];
+-        } else if (value === 'end') {
++        } else if (value === 'end' || (typeof window !== "undefined" && window.__HARNESS_LANG__ === "ar" && srcProp === 'textAlign' && value === 'right')) {
+           localizeableValue = [_right, _left];
+         }
+       }
+       // BiDi flip properties
+-      var propPolyfill = PROPERTIES_I18N[srcProp];
++      var propPolyfill = PROPERTIES_I18N[srcProp] || (typeof window !== "undefined" && window.__HARNESS_LANG__ === "ar" && PROPERTIES_FLIP[srcProp] ? srcProp : null); /* harness: RN doLeftAndRightSwapInRTL */
+       if (propPolyfill != null) {
+         var ltr = atomicCompile(srcProp, propPolyfill, value);
+         var rtl = atomicCompile(srcProp, PROPERTIES_FLIP[propPolyfill], value);
+@@ -253,14 +253,14 @@
+ 
+     // BiDi flip values
+     if (PROPERTIES_VALUE.indexOf(originalProp) > -1) {
+-      if (originalValue === 'start') {
++      if (originalValue === 'start' || (typeof window !== "undefined" && window.__HARNESS_LANG__ === "ar" && originalProp === 'textAlign' && originalValue === 'left')) { /* harness: iOS flips textAlign left/right in RTL */
+         value = isRTL ? 'right' : 'left';
+-      } else if (originalValue === 'end') {
++      } else if (originalValue === 'end' || (typeof window !== "undefined" && window.__HARNESS_LANG__ === "ar" && originalProp === 'textAlign' && originalValue === 'right')) {
+         value = isRTL ? 'left' : 'right';
+       }
+     }
+     // BiDi flip properties
+-    var propPolyfill = PROPERTIES_I18N[originalProp];
++    var propPolyfill = PROPERTIES_I18N[originalProp] || (typeof window !== "undefined" && window.__HARNESS_LANG__ === "ar" && PROPERTIES_FLIP[originalProp] ? originalProp : null); /* harness: RN doLeftAndRightSwapInRTL */
+     if (propPolyfill != null) {
+       prop = isRTL ? PROPERTIES_FLIP[propPolyfill] : propPolyfill;
+     }
+diff -ru a/node_modules/react-native-web/dist/exports/StyleSheet/validate.js b/node_modules/react-native-web/dist/exports/StyleSheet/validate.js
+--- a/node_modules/react-native-web/dist/exports/StyleSheet/validate.js	2026-10-02 14:28:49
++++ b/node_modules/react-native-web/dist/exports/StyleSheet/validate.js	2026-10-02 14:28:50
+@@ -62,8 +62,7 @@
+         suggestion = 'Did you mean "animationKeyframes"?';
+         isInvalid = true;
+       } else if (prop === 'direction') {
+-        suggestion = 'Did you mean "writingDirection"?';
+-        isInvalid = true;
++        /* harness: keep RN `direction` (Yoga honours it); compiled to CSS direction */
+       } else if (invalidShortforms[prop]) {
+         suggestion = 'Please use long-form properties.';
+         isInvalid = true;
+diff -ru a/node_modules/react-native-web/dist/exports/View/index.js b/node_modules/react-native-web/dist/exports/View/index.js
+--- a/node_modules/react-native-web/dist/exports/View/index.js	2026-10-02 14:28:49
++++ b/node_modules/react-native-web/dist/exports/View/index.js	2026-10-02 14:28:50
+@@ -83,7 +83,9 @@
+   });
+   var component = 'div';
+   var langDirection = props.lang != null ? getLocaleDirection(props.lang) : null;
+-  var componentDirection = props.dir || langDirection;
++  /* harness: honour the RN `direction` style (Yoga lays the subtree out in that direction); RNW drops it as invalid */
++  var __styleDir = (function flatDir(st) { if (!st) return null; if (Array.isArray(st)) { var d = null; for (var i = 0; i < st.length; i++) { var x = flatDir(st[i]); if (x) d = x; } return d; } return (typeof st === 'object' && (st.direction === 'ltr' || st.direction === 'rtl')) ? st.direction : null; })(props.style);
++  var componentDirection = props.dir || __styleDir || langDirection;
+   var writingDirection = componentDirection || contextDirection;
+   var supportedProps = pickProps(rest);
+   supportedProps.dir = componentDirection;

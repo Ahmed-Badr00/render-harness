@@ -14,7 +14,8 @@ import os
 HERE = os.path.dirname(os.path.abspath(__file__))
 SIMS = {'iphone-se': 'iPhone SE (3rd generation)', 'iphone-13-mini': 'iPhone 13 mini', 'iphone-14': 'iPhone 14', 'iphone-15': 'iPhone 15',
         'iphone-15-pro-max': 'iPhone 15 Pro Max', 'ipad-mini': 'iPad mini (6th generation)', 'duo-cover': 'iPhone Duo', 'duo-open-l': 'iPhone Duo',
-        'duo-open-p': 'iPhone Duo', 'duo-split-l': 'iPhone Duo', 'duo-split-p': 'iPhone Duo'}
+        'duo-open-p': 'iPhone Duo', 'duo-split-l': 'iPhone Duo', 'duo-split-p': 'iPhone Duo', 'iphone-17': 'iPhone 17',
+        'iphone-air': 'iPhone Air', 'iphone-17-pro-max': 'iPhone 17 Pro Max'}
 
 
 def ident(s):
@@ -27,7 +28,13 @@ def main():
     ap.add_argument('--format', required=True, choices=['swift', 'kotlin', 'flutter', 'simctl', 'json'])
     a = ap.parse_args()
     d = json.load(open(os.path.join(HERE, 'devices.json')))
-    ids = [x for s in a.devices.split(',') if s for x in d['sets'].get(s, [s])]
+    al = d.get('aliases', {})
+    ids = list(dict.fromkeys(al.get(x, x) for s in a.devices.split(',') if s for x in d['sets'].get(s, [s])))
+    if a.format in ('swift', 'kotlin', 'flutter', 'simctl'):
+        skipped = [i for i in ids if d['devices'][i].get('platform') in ('windows', 'macos')]
+        if skipped:
+            print(f'// skipped desktop profiles (browser renderer only): {", ".join(skipped)}')
+        ids = [i for i in ids if i not in skipped]
     prof = {i: {'top': 0, 'bottom': 0, 'left': 0, 'right': 0, **d['devices'][i], **{'insets': {'top': 0, 'bottom': 0, 'left': 0, 'right': 0, **d['devices'][i].get('insets', {})}}} for i in ids}
     if a.format == 'json':
         print(json.dumps(prof, indent=1))

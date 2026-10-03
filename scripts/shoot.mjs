@@ -46,7 +46,11 @@ try {
   const stale = meta.files.filter((f) => md5(path.join(meta.skill, 'scripts', f)) && md5(path.join(meta.skill, 'scripts', f)) !== md5(path.join(HERE, f)));
   if (stale.length) console.warn(`NOTE: the skill changed since bootstrap (${stale.join(', ')}); re-run bootstrap.sh on this work folder to update the runner.`);
 } catch (e) { /* not bootstrapped by bootstrap.sh */ }
-const expandDevices = (s) => String(s).split(',').filter(Boolean).flatMap((d) => DEV.sets[d] || [d]);
+// Model names that share a screen with a profile (iphone-16 -> iphone-15) render once, under the profile's id.
+const ALIASES = DEV.aliases || {};
+const aliasNoted = new Set();
+const canon = (d) => { const c = ALIASES[d]; if (c && !aliasNoted.has(d)) { aliasNoted.add(d); console.log(`${d}: same screen as ${c} (${DEV.devices[c]?.label}); shots go to shots/${c}/`); } return c || d; };
+const expandDevices = (s) => [...new Set(String(s).split(',').filter(Boolean).flatMap((d) => DEV.sets[d] || [d]).map(canon))];
 const scenDir = path.resolve(opt.scenarios || 'scenarios');
 const outDir = path.resolve(opt.out || 'shots');
 const base = String(opt.base || 'http://localhost:3000').replace(/\/$/, '');
@@ -343,11 +347,15 @@ async function runJob(browser, file, devId, explicitDevices) {
   fs.mkdirSync(devDir, { recursive: true });
   const safe = name.replace(/\//g, '__') + (lang === 'en' ? '' : `__${lang}`) + (dark ? '__dark' : '');
   const job = { devDir, rootSel: opt.root || sc.root || (mode === 'rn' ? '#root' : null), pagesOff: sc.pages === false, devW: d.w, taps: full ? d.taps || [] : [], boxes: sc.boxes || [] };
-  const ua = d.platform === 'android'
+  // Desktop profiles (platform windows or macos) browse as desktop Chrome with a mouse; phones and tablets as mobile with touch.
+  const desktop = d.platform === 'windows' || d.platform === 'macos';
+  const ua = d.platform === 'windows' ? 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36'
+    : d.platform === 'macos' ? 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36'
+    : d.platform === 'android'
     ? 'Mozilla/5.0 (Linux; Android 15; Pixel 7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0 Mobile Safari/537.36'
     : `Mozilla/5.0 (${d.tablet ? 'iPad' : 'iPhone'}; CPU iPhone OS 18_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.0 Mobile/15E148 Safari/604.1`;
   const context = await browser.newContext({
-    viewport: { width: d.w, height: viewH(d, full) }, deviceScaleFactor: scale, isMobile: true, hasTouch: true, userAgent: sc.userAgent || ua,
+    viewport: { width: d.w, height: viewH(d, full) }, deviceScaleFactor: scale, isMobile: !desktop, hasTouch: !desktop, userAgent: sc.userAgent || ua,
     locale, timezoneId: opt.tz || sc.timezone || 'UTC', colorScheme: dark ? 'dark' : 'light', extraHTTPHeaders: { 'accept-language': locale },
   });
   const log = { scenario: name, file, device: devId, mode, full, viewport: [d.w, viewH(d, full)], lang, dark, files: [], requests: [], misses: [], console: [], pageErrors: [], stepErrors: [], reach: [], harnessOnly: [], layout: [], boxes: {}, zoomCarried: [] };
@@ -414,6 +422,7 @@ async function runJob(browser, file, devId, explicitDevices) {
       try {
         const scope = job.rootSel || 'body';
         if (st.device) {
+          st.device = ALIASES[st.device] || st.device;
           const nd = DEV.devices[st.device];
           if (!nd) throw new Error(`unknown device ${st.device}`);
           curDev = st.device;
@@ -490,7 +499,7 @@ for (const f of files) {
   let devs = opt.devices && !(own && own.fold) ? expandDevices(opt.devices) : own ? own.list : ['iphone-15'];
   if (opt.devices && own && own.fold) console.log(`${nameOf(f)}: kept its own devices ${own.list.join(',')} (it has a fold/unfold step)`);
   for (const dv of devs) {
-    if (!DEV.devices[dv]) { console.error(`unknown device ${dv}. Known: ${Object.keys(DEV.devices).join(', ')}. Sets: ${Object.keys(DEV.sets).join(', ')}`); process.exit(1); }
+    if (!DEV.devices[dv]) { console.error(`unknown device ${dv}. Known: ${Object.keys(DEV.devices).join(', ')}. Aliases: ${Object.keys(ALIASES).join(', ')}. Sets: ${Object.keys(DEV.sets).join(', ')}`); process.exit(1); }
     jobs.push([f, dv]);
   }
 }
