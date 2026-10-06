@@ -85,10 +85,13 @@ function expand(arg) {
 const nameOf = (f) => { const rel = path.relative(scenDir, f); return (rel.startsWith('..') ? path.basename(f) : rel).replace(/\.json$/, ''); };
 
 // ---------- device chrome drawn over the page (system UI is physical: it does not mirror in RTL) ----------
+// Web mode uses the browser's visible page (devices.json web.w and web.h): on the iPhone Duo cover Safari keeps its
+// controls in the 84 pt side column, so the page is 382 wide on a 466 wide screen.
 const viewH = (d, full) => (full ? d.h : d.web?.h ?? d.h);
+const viewW = (d, full) => (full ? d.w : d.web?.w ?? d.w);
 function chromeSpec(id, full) {
   const d = DEV.devices[id];
-  return { id, w: d.w, h: viewH(d, full), chrome: opt['no-chrome'] || !full ? [] : d.chrome || [], insets: full ? { top: 0, bottom: 0, left: 0, right: 0, ...(d.insets || {}) } : { top: 0, bottom: 0, left: 0, right: 0 },
+  return { id, w: viewW(d, full), h: viewH(d, full), chrome: opt['no-chrome'] || !full ? [] : d.chrome || [], insets: full ? { top: 0, bottom: 0, left: 0, right: 0, ...(d.insets || {}) } : { top: 0, bottom: 0, left: 0, right: 0 },
     crease: d.crease ? (d.crease.axis === 'y' && !full ? { ...d.crease, at: d.crease.at - (d.h - viewH(d, full)) } : d.crease) : null, taps: full ? d.taps || [] : [], guides: !!opt.guides, dark };
 }
 function drawChrome(s) {
@@ -346,7 +349,7 @@ async function runJob(browser, file, devId, explicitDevices) {
   const devDir = path.join(outDir, devId);
   fs.mkdirSync(devDir, { recursive: true });
   const safe = name.replace(/\//g, '__') + (lang === 'en' ? '' : `__${lang}`) + (dark ? '__dark' : '');
-  const job = { devDir, rootSel: opt.root || sc.root || (mode === 'rn' ? '#root' : null), pagesOff: sc.pages === false, devW: d.w, taps: full ? d.taps || [] : [], boxes: sc.boxes || [] };
+  const job = { devDir, rootSel: opt.root || sc.root || (mode === 'rn' ? '#root' : null), pagesOff: sc.pages === false, devW: viewW(d, full), taps: full ? d.taps || [] : [], boxes: sc.boxes || [] };
   // Desktop profiles (platform windows or macos) browse as desktop Chrome with a mouse; phones and tablets as mobile with touch.
   const desktop = d.platform === 'windows' || d.platform === 'macos';
   const ua = d.platform === 'windows' ? 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36'
@@ -355,7 +358,7 @@ async function runJob(browser, file, devId, explicitDevices) {
     ? 'Mozilla/5.0 (Linux; Android 15; Pixel 7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0 Mobile Safari/537.36'
     : `Mozilla/5.0 (${d.tablet ? 'iPad' : 'iPhone'}; CPU iPhone OS 18_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.0 Mobile/15E148 Safari/604.1`;
   const context = await browser.newContext({
-    viewport: { width: d.w, height: viewH(d, full) }, deviceScaleFactor: scale, isMobile: !desktop, hasTouch: !desktop, userAgent: sc.userAgent || ua,
+    viewport: { width: viewW(d, full), height: viewH(d, full) }, deviceScaleFactor: scale, isMobile: !desktop, hasTouch: !desktop, userAgent: sc.userAgent || ua,
     locale, timezoneId: opt.tz || sc.timezone || 'UTC', colorScheme: dark ? 'dark' : 'light', extraHTTPHeaders: { 'accept-language': locale },
   });
   const log = { scenario: name, file, device: devId, mode, full, viewport: [d.w, viewH(d, full)], lang, dark, files: [], requests: [], misses: [], console: [], pageErrors: [], stepErrors: [], reach: [], harnessOnly: [], layout: [], boxes: {}, zoomCarried: [] };
@@ -426,10 +429,10 @@ async function runJob(browser, file, devId, explicitDevices) {
           const nd = DEV.devices[st.device];
           if (!nd) throw new Error(`unknown device ${st.device}`);
           curDev = st.device;
-          job.devW = nd.w;
+          job.devW = viewW(nd, full);
           job.taps = full ? nd.taps || [] : [];
-          await page.setViewportSize({ width: nd.w, height: viewH(nd, full) });
-          await page.evaluate(([w, h, ins, id]) => { const hh = window.__HARNESS__; hh.device = { ...hh.device, id, w, h, insets: ins }; const r = document.getElementById('root'); if (r && hh.scenario && (hh.scenario.screen || hh.scenario.stack)) { r.style.width = `${w}px`; r.style.height = `${h}px`; } window.dispatchEvent(new Event('resize')); }, [nd.w, viewH(nd, full), full ? { top: 0, bottom: 0, left: 0, right: 0, ...(nd.insets || {}) } : { top: 0, bottom: 0, left: 0, right: 0 }, st.device]);
+          await page.setViewportSize({ width: viewW(nd, full), height: viewH(nd, full) });
+          await page.evaluate(([w, h, ins, id]) => { const hh = window.__HARNESS__; hh.device = { ...hh.device, id, w, h, insets: ins }; const r = document.getElementById('root'); if (r && hh.scenario && (hh.scenario.screen || hh.scenario.stack)) { r.style.width = `${w}px`; r.style.height = `${h}px`; } window.dispatchEvent(new Event('resize')); }, [viewW(nd, full), viewH(nd, full), full ? { top: 0, bottom: 0, left: 0, right: 0, ...(nd.insets || {}) } : { top: 0, bottom: 0, left: 0, right: 0 }, st.device]);
           // Chrome carries the page zoom across the resize; a fresh load on the new device has zoom 1. Reset it (and
           // log what was carried) unless the step says keepZoom. What a real browser does here is NEEDS DEVICE.
           await page.waitForTimeout(300);

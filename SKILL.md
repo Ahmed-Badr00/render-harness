@@ -125,8 +125,10 @@ Plus/Ultra, A-series, Pixel 7/9, Galaxy Fold, iPhone Duo (every posture and Spli
 `iphone-15`, `galaxy-s25-ultra` as `galaxy-s24-ultra`). Sets: `phones` (default matrix: SE, 15, 17 Pro Max, S24, S24
 Ultra, Pixel 9), `ios`, `android`, `samsung`, `foldables`, `duo`, `tablets`, `desktop`, `mac`, `mobile`, `all`. Pass ids
 or sets: `--devices=phones,duo,desktop-1920`. Desktop profiles browse as desktop Chrome with a mouse (no touch, desktop
-user agent); use them for web apps. Web mode uses each device's visible browser height (`web.h`) and draws no system UI;
-rn mode and `--standalone` use the full screen with the status bar, home indicator, Duo capsule or cluster drawn on top.
+user agent); use them for web apps. Web mode uses each device's visible browser page (`web.w` x `web.h`; on the iPhone Duo cover Safari keeps its controls
+in the 84 pt side column, so the page is 382 x 580 on a 466 x 678 screen) and draws no system UI; rn mode and
+`--standalone` use the full screen with the status bar, home indicator (iPhones only: the Duo has none), Duo capsule or
+cluster drawn on top.
 `--guides` draws safe areas, the crease and dead-tap zones for review. Add a device by measuring it on a simulator or
 emulator (screen size in points, insets, where system UI sits); never guess numbers.
 
