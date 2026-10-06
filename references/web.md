@@ -71,8 +71,10 @@ on the server, SvelteKit `+page.server.ts`) never reaches the browser.
   supports it, a fake-time env var).
 
 ## 5. Device behaviour on the web
-- Default web mode uses the visible page height inside the mobile browser (`devices.json` `web.h`; Safari or Chrome UI
-  takes the rest) and draws no system UI, because the page never sits under the notch in a normal browser tab.
+- Default web mode uses the visible page inside the mobile browser (`devices.json` `web.w` x `web.h`; Safari or Chrome UI
+  takes the rest) and draws no system UI, because the page never sits under the notch in a normal browser tab. On the
+  iPhone Duo cover Safari puts its controls in the 84 pt side column, so pages get 382 x 580 there (measured on the
+  Xcode 27.1 simulator); a page that assumes it fills the 466 pt screen is a real finding.
 - `--standalone` renders at the full screen height with system UI drawn: use it for PWAs with
   `viewport-fit=cover`, in-app webviews and kiosk displays. `env(safe-area-inset-*)` stays 0 in headless Chrome, so a
   page that relies on it looks unpadded under the drawn status bar: that is the harness, not the app. Confirm such

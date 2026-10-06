@@ -124,9 +124,10 @@ UI to draw, fold crease, dead tap zones, the visible browser height, an `approx`
   `samsung`, `foldables`, `duo`, `tablets`, `desktop`, `mac`, `mobile` (all phones, foldables and tablets), `all`.
 - **Phones and tablets** browse as mobile Safari or Chrome with touch. **Desktop profiles** browse as desktop Chrome with
   a mouse (no touch, desktop user agent), so sites serve their desktop layout.
-- **Web mode** uses each device's visible browser height and draws no system UI. **React Native mode and
-  `--standalone`** use the full screen and draw the status bar, Dynamic Island or notch, home indicator, Android bars,
-  and the Duo's status capsule or cluster on top. `--guides` overlays safe areas, the crease and dead tap zones.
+- **Web mode** uses each device's visible browser page (width and height) and draws no system UI. On the iPhone Duo
+  cover Safari keeps its controls in the 84 pt side column, so pages get 382 x 580 of the 466 x 678 screen.
+  **React Native mode and `--standalone`** use the full screen and draw the status bar, Dynamic Island or notch, home
+  indicator (iPhones only: the Duo has none), Android bars, and the Duo's status capsule or cluster on top. `--guides` overlays safe areas, the crease and dead tap zones.
 - **Foldables**: a `{"device": "duo-open-l"}` step resizes mid-flow like unfolding, so you can see whether state and
   layout survive a fold.
 
@@ -135,9 +136,10 @@ UI to draw, fold crease, dead tap zones, the visible browser height, an `approx`
 |---|---|---|
 | iPhone screen sizes | Read from Apple's simulator device profiles shipped with Xcode | Exact |
 | iPhone safe areas | Published simulator measurements; models with identical display hardware share values | High |
+| iPhone Duo safe areas and Safari page | Measured on the Xcode 27.1 simulator with a probe app: cover and open landscape both top 0, bottom 34, right 84 (the side column), no home indicator; Safari page 382 x 580 on the cover, 951 x 589 open | Exact for cover and open landscape; open portrait and Split View panes estimated |
 | Galaxy and Pixel sizes and pixel ratio | Each phone's own firmware density at default settings, cross-checked with real-traffic viewport data. Chrome DevTools' and Playwright's built-in presets are wrong for the Galaxy A55 and Pixel 9, so they are not used | High (S26 and S26+ inferred from the S24/S25 pattern) |
 | Samsung status and navigation bar heights | Not published; derived from one measured Galaxy Ultra page height | Approximate |
-| Visible browser heights | Measured where possible (MacBook Pro 14: Chrome's tab strip and toolbar are 87 points); derived elsewhere | Approximate, varies with toolbars, Dock, taskbar, zoom |
+| Visible browser heights | Measured where possible (iPhone Duo cover and open landscape; MacBook Pro 14: Chrome's tab strip and toolbar are 87 points); derived elsewhere | Approximate, varies with toolbars, Dock, taskbar, zoom |
 | Desktop widths | Standard screen sizes | Exact (width is what selects a site's layout) |
 | Galaxy Fold | Estimated | Approximate |
 
