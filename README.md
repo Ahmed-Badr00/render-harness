@@ -110,7 +110,8 @@ UI to draw, fold crease, dead tap zones, the visible browser height, an `approx`
 | | `pixel-7` | 412 x 915 | Pixel 7 |
 | | `pixel-9` | 412 x 924 | Pixel 9 |
 | | `pixel-9-pro-xl` | 448 x 998 | Pixel 9 Pro XL |
-| Foldables | `galaxy-fold-cover`, `galaxy-fold-open` | 344 x 882, 690 x 829 | Galaxy Z Fold5 |
+| Foldables | `galaxy-fold7-cover`, `galaxy-fold7-open` | 412 x 960, 750 x 832 | Galaxy Z Fold7 |
+| | `galaxy-fold-cover`, `galaxy-fold-open` | 344 x 882, 690 x 829 | Galaxy Z Fold5 |
 | | `duo-cover` | 466 x 678 | iPhone Duo cover screen |
 | | `duo-open-l`, `duo-open-p` | 951 x 669, 669 x 951 | iPhone Duo open, landscape and portrait |
 | | `duo-split-l`, `duo-split-p` | 475 x 669, 669 x 475 | iPhone Duo Split View panes |
@@ -138,10 +139,10 @@ UI to draw, fold crease, dead tap zones, the visible browser height, an `approx`
 | iPhone safe areas | Published simulator measurements; models with identical display hardware share values | High |
 | iPhone Duo safe areas and Safari page | Measured on the Xcode 27.1 simulator with a probe app: cover and open landscape both top 0, bottom 34, right 84 (the side column), no home indicator; Safari page 382 x 580 on the cover, 951 x 589 open | Exact for cover and open landscape; open portrait and Split View panes estimated |
 | Galaxy and Pixel sizes and pixel ratio | Each phone's own firmware density at default settings, cross-checked with real-traffic viewport data. Chrome DevTools' and Playwright's built-in presets are wrong for the Galaxy A55 and Pixel 9, so they are not used | High (S26 and S26+ inferred from the S24/S25 pattern) |
-| Samsung status and navigation bar heights | Not published; derived from one measured Galaxy Ultra page height | Approximate |
-| Visible browser heights | Measured where possible (iPhone Duo cover and open landscape; MacBook Pro 14: Chrome's tab strip and toolbar are 87 points); derived elsewhere | Approximate, varies with toolbars, Dock, taskbar, zoom |
+| Samsung status and navigation bar heights | Measured on Samsung Remote Test Lab hardware (S24, S25, Ultras, Fold5, Fold7): status about 34 dp, 3-button nav 48 dp (the shipped default) | High |
+| Visible browser heights | Measured where possible: iOS 26+ Safari leaves the page the screen height minus the top inset minus 98 pt (measured on a 393 pt iPhone, a 402 pt simulator and the Duo cover); iPhone Duo open landscape; Galaxy Ultra Chrome; MacBook Pro 14 Chrome (87 pt of tab strip and toolbar). Other sizes use the same rules | Approximate where derived; varies with tab bar mode, toolbars, Dock, taskbar, zoom |
 | Desktop widths | Standard screen sizes | Exact (width is what selects a site's layout) |
-| Galaxy Fold | Estimated | Approximate |
+| Galaxy Z Fold5 and Fold7 | Screen sizes measured on hardware and confirmed by real-traffic viewports; Chrome page height derived | High for size, approximate for page height |
 
 Every profile with an estimated value carries `approx` (`web.h`, `insets` or `all`), and the HTML report lists
 approximate profiles automatically.
